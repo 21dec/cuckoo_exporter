@@ -62,9 +62,7 @@ class Formatter:
 
 
 class HTMLFormatter(Formatter):
-
-    def __init__(self):
-        self.alias = 'html'
+    alias = 'html'
 
     def build(self, filteredList):
         for filteredItem in filteredList:
@@ -77,8 +75,7 @@ class HTMLFormatter(Formatter):
             print "</P>"
 
 class ReStructuredTextFormatter(Formatter):
-    def __init__(self):
-        self.alias = 'rst'
+    alias = 'rst'
 
     def build(self, filteredList):
         for filteredItem in filteredList:
@@ -89,17 +86,16 @@ class ReStructuredTextFormatter(Formatter):
 
 class FormatterFactory:
     def __init__(self):
-        currentModules = inspect.getmembers(sys.modules[__name__], inspect.isclass)
-        self.formatterAliasList = []
+        currentClasses = inspect.getmembers(sys.modules[__name__], inspect.isclass)
+        self.formatterList = []
         self.usableFormatters = {}
-        for m in currentModules:
+        for m in currentClasses:
             for tree in inspect.getmro(m[1]):
                 if Formatter == tree and m[0] != Formatter.__name__:
-                    self.formatterAliasList.append(m[0])
+                    self.formatterList.append(eval(m[0]))
 
-        for f in self.formatterAliasList:
-            instance = (eval(f))()
-            self.usableFormatters[instance.alias] = instance
+        for formatter in self.formatterList:
+            self.usableFormatters[formatter.alias] = formatter()
 
     def getFormatterAliasList(self):
         return self.usableFormatters.keys()
